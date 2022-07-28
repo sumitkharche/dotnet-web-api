@@ -13,5 +13,6 @@ RUN dotnet publish -c Release -o out
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-windowsservercore-ltsc2022
 WORKDIR /app
+EXPOSE 80
 COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "aspnetapp.dll"]
+ENTRYPOINT ["dotnet", "demo-web-api.dll"]
