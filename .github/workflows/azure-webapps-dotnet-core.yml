@@ -45,7 +45,7 @@ jobs:
 
       # Run dotnet build and publish
       - name: dotnet build and publish
-        working-directory: 'app'
+        working-directory: 'demo-web-api'
         run: |
           dotnet restore
           dotnet build --configuration Release
