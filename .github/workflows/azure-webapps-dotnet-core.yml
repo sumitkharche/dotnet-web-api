@@ -22,7 +22,9 @@ name: Build and deploy ASP.Net Core app to an Azure Web App
 env:
   AZURE_WEBAPP_NAME: your-app-name    # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '6.x.x'                 # set this to the .NET Core version to use
+  DOTNET_VERSION: '6.x.x'               # set this to the .NET Core version to use
+  DEV_Env: 'Development'
+  PROD_Env: 'Production'
 
 on:
   push:
@@ -43,20 +45,35 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      # Run dotnet build and publish
+      # Run dotnet build and publish for Dev Env
       - name: dotnet build and publish
         working-directory: 'demo-web-api'
         run: |
           dotnet restore
           dotnet build --configuration Release
-          dotnet publish -c Release -o './published-app' /p:EnvironmentName=Development
+          dotnet publish -c Release -o './published-app-${{env.DEV_Env}}' /p:EnvironmentName=${{env.DEV_Env}}
 
       # Publish artifact
       - name: Publish artifact
         uses: actions/upload-artifact@v2
         with:
-          name: published-app
-          path: './demo-web-api/published-app'
+          name: published-app-${{env.DEV_Env}}
+          path: './demo-web-api/published-app-${{env.DEV_Env}}'
+          
+      # Run dotnet build and publish for PROD Env
+      - name: dotnet build and publish
+        working-directory: 'demo-web-api'
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish -c Release -o './published-app-${{env.PROD_Env}}' /p:EnvironmentName=${{env.PROD_Env}}
+
+      # Publish artifact for PROD
+      - name: Publish artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: published-app-${{env.PROD_Env}}
+          path: './demo-web-api/published-app-${{env.PROD_Env}}'
 
   deploy-dev:
     runs-on: 'ubuntu-latest'
