@@ -46,7 +46,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       # Run dotnet build and publish for Dev Env
-      - name: dotnet build and publish
+      - name: dotnet build and publish for Dev Env
         working-directory: 'demo-web-api'
         run: |
           dotnet restore
@@ -54,14 +54,14 @@ jobs:
           dotnet publish -c Release -o './published-app-${{env.DEV_Env}}' /p:EnvironmentName=${{env.DEV_Env}}
 
       # Publish artifact
-      - name: Publish artifact
+      - name: Publish artifact for Dev Env
         uses: actions/upload-artifact@v2
         with:
           name: published-app-${{env.DEV_Env}}
           path: './demo-web-api/published-app-${{env.DEV_Env}}'
           
       # Run dotnet build and publish for PROD Env
-      - name: dotnet build and publish
+      - name: dotnet build and publish for PROD Env
         working-directory: 'demo-web-api'
         run: |
           dotnet restore
@@ -69,7 +69,7 @@ jobs:
           dotnet publish -c Release -o './published-app-${{env.PROD_Env}}' /p:EnvironmentName=${{env.PROD_Env}}
 
       # Publish artifact for PROD
-      - name: Publish artifact
+      - name: Publish artifact for PROD Env
         uses: actions/upload-artifact@v2
         with:
           name: published-app-${{env.PROD_Env}}
@@ -85,8 +85,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: published-app
-          path: './published-app'
+          name: published-app-${{env.DEV_Env}}
+          path: './published-app-${{env.DEV_Env}}'
 
       # Deploy to web app
       - name: Deploy to Azure WebApp
@@ -94,4 +94,27 @@ jobs:
         with:
           app-name: demodevwebapi
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: './published-app'
+          package: './published-app-${{env.DEV_Env}}'
+          
+  deploy-prod:
+    runs-on: 'ubuntu-latest'
+    environment: 'prod'
+    needs: build-and-publish
+    steps:
+
+      # Download published artifact
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: published-app-${{env.PROD_Env}}
+          path: './published-app-${{env.PROD_Env}}'
+
+      # Deploy to web app
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: demoprodwebapi
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: './published-app-${{env.PROD_Env}}'
+
+
