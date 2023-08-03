@@ -63,6 +63,7 @@ jobs:
       # Run dotnet build and publish for PROD Env
       - name: dotnet build and publish for PROD Env
         working-directory: 'demo-web-api'
+        if: github.ref == 'refs/heads/main'
         run: |
           dotnet restore
           dotnet build --configuration Release
@@ -71,6 +72,7 @@ jobs:
       # Publish artifact for PROD
       - name: Publish artifact for PROD Env
         uses: actions/upload-artifact@v2
+        if: github.ref == 'refs/heads/main'
         with:
           name: published-app-${{env.PROD_Env}}
           path: './demo-web-api/published-app-${{env.PROD_Env}}'
