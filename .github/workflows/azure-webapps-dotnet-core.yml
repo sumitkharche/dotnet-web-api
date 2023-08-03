@@ -99,7 +99,7 @@ jobs:
   deploy-prod:
     runs-on: 'ubuntu-latest'
     environment: 'prod'
-    needs: build-and-publish
+    needs: deploy-dev
     steps:
 
       # Download published artifact
