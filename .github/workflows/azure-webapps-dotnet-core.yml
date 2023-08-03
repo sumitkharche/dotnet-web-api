@@ -100,6 +100,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     environment: 'prod'
     needs: deploy-dev
+    if: github.ref == 'refs/heads/main'
     steps:
 
       # Download published artifact
